@@ -4,17 +4,17 @@ import "github.com/google/go-github/github"
 import "golang.org/x/oauth2"
 import "fmt"
 import "os"
+import "strings"
 
-//import "reflect"
+func commentOnPr(url string) {
+	user, repo, _ := parseUrl(url)
 
-func foobar() {
 	client := getClient()
-
-	commits, _, _ := client.PullRequests.ListCommits("oagr", "frequency_list", 1, nil)
+	commits, _, _ := client.PullRequests.ListCommits(user, repo, 1, nil)
 	SHA := commits[len(commits)-1].SHA
 
-	files, _, _ := client.PullRequests.ListFiles("oagr", "frequency_list", 1, nil)
-	fmt.Println(files)
+	files, _, _ := client.PullRequests.ListFiles(user, repo, 1, nil)
+
 	var violations []Violation
 	for _, file := range files {
 		violations = append(violations, fileViolations(file)...)
@@ -27,11 +27,19 @@ func foobar() {
 			Path:     github.String(v.Filename),
 			Position: github.Int(v.line),
 		}
-		comment, response, err := client.PullRequests.CreateComment("oagr", "frequency_list", 1, input)
+		comment, response, err := client.PullRequests.CreateComment(user, repo, 1, input)
 		fmt.Println(comment, response, err)
 	}
 
 	fmt.Println(violations)
+}
+
+func parseUrl(url string) (user string, repo string, pull_num string) {
+	params := strings.Split(url[8:], "/")
+	user = params[1]
+	repo = params[2]
+	pull_num = params[4]
+	return user, repo, pull_num
 }
 
 type tokenSource struct {
