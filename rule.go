@@ -7,12 +7,20 @@ type Rule struct {
 	Warning string
 }
 
-func ViolatedRules(line string, rules []Rule) []Rule {
+func ViolatedLineRules(line string, rules []Rule) []Rule {
 	var violated []Rule
 	for _, rule := range rules {
 		if DoesMatch(rule.Regex, line) {
 			violated = append(violated, rule)
 		}
+	}
+	return violated
+}
+
+func ViolatedLinesRules(lines []string, rules []Rule) []Rule {
+	var violated []Rule
+	for _, line := range lines {
+		violated = append(violated, ViolatedLineRules(line, rules)...)
 	}
 	return violated
 }

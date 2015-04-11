@@ -4,6 +4,8 @@ rules:
     warning: foobar
   - regex: batman
     warning: superman
+  - regex: Println
+    warning: superman
   - group:
       warning: not in ie9
       regex:
