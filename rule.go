@@ -3,10 +3,10 @@ package main
 //import "fmt"
 import "regexp"
 
-type Rule struct {
-	regex   string
-	warning string
-}
+//type Rule struct {
+//regex   string
+//warning string
+//}
 
 func defaults() (rules []Rule) {
 	r := []Rule{
