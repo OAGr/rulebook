@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	//"gopkg.in/yaml.v2"
-	"github.com/kylelemons/go-gypsy/yaml"
+	"gopkg.in/yaml.v2"
+	//"github.com/kylelemons/go-gypsy/yaml"
 
-	//"io/ioutil"
+	"io/ioutil"
 	"path/filepath"
 	//"reflect"
 )
@@ -15,18 +15,34 @@ type Rule struct {
 	warning string
 }
 
-func pparse() {
-	filename, _ := filepath.Abs("./test.yml")
-	//yamlFile, err := ioutil.ReadFile(filename)
-	yamlFile, _ := yaml.ReadFile(filename)
+//type Target map[string]string
 
-	fmt.Println(yamlFile.Count(""))
-	//fmt.Println(yamlFile.Get("[1].message"))
-	for i := 0; i < 4; i++ {
-		str := fmt.Sprintf("[%d].message", 3)
-		foo, _ := yamlFile.Get(str)
-		fmt.Println(foo)
-	}
+//type Target struct {
+//batman   string
+//Endpoint string
+//}
+type Target map[string]string
+
+type Targets struct {
+	Current string
+	Options []Target
+}
+
+func pparse() {
+	m := Targets{}
+	filename, _ := filepath.Abs("./test.yml")
+	yamlFile, _ := ioutil.ReadFile(filename)
+	err := yaml.Unmarshal([]byte(string(yamlFile)), &m)
+	fmt.Println(err)
+	fmt.Println(m)
+
+	//fmt.Println(yamlFile.Count(""))
+	////fmt.Println(yamlFile.Get("[1].message"))
+	//for i := 0; i < 4; i++ {
+	//str := fmt.Sprintf("[%d].message", 3)
+	//foo, _ := yamlFile.Get(str)
+	//fmt.Println(foo)
+	//}
 
 	//mm := map(string:string)m.Root
 	//typecast this into a map

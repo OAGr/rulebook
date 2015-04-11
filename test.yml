@@ -1,8 +1,4 @@
-- match: Easy!
-  message: Yes!
-- match: Easy!
-  message: Yes!
-- match: Easy!
-  message: Yes!
-- match: Easy!
-  message: Yes!
+current: batman
+options:
+  - superman: that
+  - robin: this
