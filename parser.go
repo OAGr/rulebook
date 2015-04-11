@@ -1,66 +1,44 @@
 package main
 
 import (
-	"fmt"
 	"gopkg.in/yaml.v2"
-	//"github.com/kylelemons/go-gypsy/yaml"
-
 	"io/ioutil"
 	"path/filepath"
-	//"reflect"
 )
 
-type Rule struct {
-	regex   string
-	warning string
+type Item struct {
+	Group struct {
+		Warning string
+		Regex   []string
+	}
+	Warning string
+	Regex   string
 }
 
-//type Target map[string]string
-
-//type Target struct {
-//batman   string
-//Endpoint string
-//}
-type Target map[string]string
-
-type Targets struct {
-	Current string
-	Options []Target
-}
-
-func pparse() {
-	m := Targets{}
-	filename, _ := filepath.Abs("./test.yml")
+func ruleParser(path string) (rules []Rule) {
+	m := struct{ Rules []Item }{}
+	filename, _ := filepath.Abs(path)
 	yamlFile, _ := ioutil.ReadFile(filename)
-	err := yaml.Unmarshal([]byte(string(yamlFile)), &m)
-	fmt.Println(err)
-	fmt.Println(m)
+	yaml.Unmarshal([]byte(string(yamlFile)), &m)
 
-	//fmt.Println(yamlFile.Count(""))
-	////fmt.Println(yamlFile.Get("[1].message"))
-	//for i := 0; i < 4; i++ {
-	//str := fmt.Sprintf("[%d].message", 3)
-	//foo, _ := yamlFile.Get(str)
-	//fmt.Println(foo)
-	//}
+	var _rules []Rule
+	for _, item := range m.Rules {
+		_rules = append(_rules, parseItem(item)...)
+	}
 
-	//mm := map(string:string)m.Root
-	//typecast this into a map
-	//for k, v := range Map(string: yaml.Map())m.Root {
-	//fmt.Println(k, v)
-	//}
-	//fmt.Println(m)
-	//for i, t := range m {
+	return _rules
+}
 
-	//}
+func parseItem(i Item) (r []Rule) {
+	var rules []Rule
 
-	//var rules []Rule
-	//for i, t := range yamlFile {
-	//fmt.Println(i, t)
-	//}
-	//return rules
-	//for _, rule := range defaults() {
-	//fmt.Println(yamlFile, err)
+	if i.Warning != "" && i.Regex != "" {
+		rules = append(rules, Rule{i.Regex, i.Warning})
+	} else if i.Group.Warning != "" {
+		for _, regex := range i.Group.Regex {
+			rules = append(rules, Rule{regex, i.Group.Warning})
+		}
+	}
 
-	//fmt.Printf("Value: %#v\n", config.Firewall_network_rules)
+	return rules
 }

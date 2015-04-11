@@ -17,12 +17,13 @@ func commentOnPr(url string) {
 
 	var violations []Violation
 	for _, file := range files {
-		violations = append(violations, fileViolations(file)...)
+		fmt.Println(file)
+		//violations = append(violations, fileViolations(file)...)
 	}
 
 	for _, v := range violations {
 		input := &github.PullRequestComment{
-			Body:     github.String(v.rule.warning),
+			Body:     github.String(v.rule.Warning),
 			CommitID: SHA,
 			Path:     github.String(v.Filename),
 			Position: github.Int(v.line),

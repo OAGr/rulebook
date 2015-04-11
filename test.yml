@@ -1,4 +1,58 @@
-current: batman
-options:
-  - superman: that
-  - robin: this
+rules:
+  -
+    regex: what
+    warning: foobar
+  - regex: batman
+    warning: superman
+  - group:
+      warning: not in ie9
+      regex:
+
+        ##CSS3
+        - :@namespace
+  - group:
+      warning: not in ie8
+      regex:
+
+        ##CSS3
+        - :@namespace
+        - :@keyframes
+        - :@-ms-viewport
+
+        #CSS 3Selectors
+        - :root
+        - :nth-child(n)
+        - :nth-last-child(n)
+        - :nth-of-type(n)
+        - :nth-last-of-type(n)
+        - :last-child
+        - :first-of-type
+        - :last-of-type
+        - :only-child
+        - :only-of-type
+        - :empty
+        - :target
+        - :not(s)
+        - :enabled
+        - :disabled
+        - :checked
+        - :indeterminate
+        - :default
+        - :valid
+        - :invalid
+        - :in-range
+        - :out-of-range
+        - :required
+        - :optional
+        - :read-only
+        - :read-write
+
+        - ::after
+        - ::before
+        - ::first-letter
+        - ::first-line
+        - ::selection
+        - ::value
+        - ::choices
+        - ::repeat-item
+        - ::repeat-index
