@@ -13,7 +13,7 @@ type Violation struct {
 
 func violationError(Rules []Rule) string {
 	s := "\x1b[31;1m"
-	s += "- VIOLATION ->  "
+	s += "- Rulebook Violation ->  "
 	for _, rule := range Rules {
 		s += fmt.Sprintf("{regex: %s, message: %s}", rule.Regex, rule.Warning)
 	}
@@ -25,7 +25,7 @@ func violationSummary(Rules []Rule) []string {
 	var s []string
 	if len(Rules) > 0 {
 		s = append(s, "==================================================")
-		s = append(s, fmt.Sprintf("%d Rule Book Violations ", len(Rules)))
+		s = append(s, fmt.Sprintf("%d Rulebook Violations ", len(Rules)))
 		s = append(s, "--------------------------------------------------")
 		s = append(s, "\x1b[31;1m")
 		for _, rule := range Rules {

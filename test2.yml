@@ -1,0 +1,6 @@
+rules:
+  -
+    regex: superman
+    warning: foobar
+  - regex: madman
+    warning: superman

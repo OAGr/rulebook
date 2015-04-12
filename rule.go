@@ -1,10 +1,17 @@
 package main
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+)
 
 type Rule struct {
 	Regex   string
 	Warning string
+}
+
+func (rule Rule) String() string {
+	return fmt.Sprintf("%s ->  %s", rule.Regex, rule.Warning)
 }
 
 func ViolatedLineRules(line string, rules []Rule) []Rule {

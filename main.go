@@ -5,30 +5,51 @@ import (
 	"fmt"
 	"github.com/codegangsta/cli"
 	"os"
+	"os/exec"
+	"strings"
 )
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "Sensei"
-	app.Usage = "Test code for mistakes"
-	app.EnableBashCompletion = true
+	app.Name = "Rulebook"
+	app.Usage = "Test code against simple rules"
 	app.Action = func(c *cli.Context) {
-		println("Boom! I say")
+		fmt.Println(ruleParser("./"))
 	}
 	app.Commands = []cli.Command{
 		{
-			Name:    "run",
-			Aliases: []string{"r"},
+			Name:    "validate",
+			Aliases: []string{"v"},
 			Usage:   "(default) Analyze code sent in via pipe command",
 			Action: func(c *cli.Context) {
 				evaluateStdin()
 			},
 		},
 		{
-			Name:    "server",
-			Aliases: []string{"s"},
-			Usage:   "run server on provided port number",
+			Name:    "diff",
+			Aliases: []string{"v"},
+			Usage:   "validates `git diff` in current git repo",
 			Action: func(c *cli.Context) {
+				diff, err := exec.Command("sh", "-c", "git diff --color").Output()
+				if err != nil {
+					fmt.Printf("Terrible error %e", err)
+				} else {
+					lines := strings.Split(string(diff), "\n")
+					evaluateText(lines)
+				}
+			},
+		},
+		{
+			Name:    "list",
+			Aliases: []string{"l"},
+			Usage:   "List current rules",
+			Action: func(c *cli.Context) {
+				rules := getRules()
+				println("Rulebook Rules")
+				println("")
+				for _, rule := range rules {
+					println(rule.String())
+				}
 				println("Server running on port %s ", c.Args().First())
 			},
 		},
@@ -40,12 +61,20 @@ func main() {
 				println("Creating comments on PR", c.Args().First())
 			},
 		},
+		{
+			Name:    "server",
+			Aliases: []string{"s"},
+			Usage:   "run server on provided port number",
+			Action: func(c *cli.Context) {
+				println("Server running on port %s ", c.Args().First())
+			},
+		},
 	}
 	app.Run(os.Args)
 }
 
 func getRules() []Rule {
-	return ruleParser("./test.yml")
+	return ruleParser("./")
 }
 
 func evaluateStdin() {
