@@ -4,6 +4,7 @@ import (
 	//"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -17,17 +18,8 @@ type Item struct {
 }
 
 func ruleParser(dir string) []Rule {
-	files, _ := ioutil.ReadDir(dir)
-
-	var parseable_files []string
-
-	for _, file := range files {
-		if isParseable(file.Name()) {
-			parseable_files = append(parseable_files, file.Name())
-		}
-	}
-
-	rules := findFilesRules(parseable_files)
+	fileList := findYml(dir)
+	rules := findFilesRules(fileList)
 	return rules
 }
 
@@ -68,4 +60,16 @@ func parseItem(i Item) (r []Rule) {
 	}
 
 	return rules
+}
+
+func findYml(dir string) []string {
+	fileList := []string{}
+	filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
+		if DoesMatch(".yml", path) {
+			fileList = append(fileList, path)
+		}
+
+		return nil
+	})
+	return fileList
 }

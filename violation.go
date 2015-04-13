@@ -29,7 +29,7 @@ func violationSummary(Rules []Rule) []string {
 		s = append(s, "--------------------------------------------------")
 		s = append(s, "\x1b[31;1m")
 		for _, rule := range Rules {
-			regex := rule.Regex + "                "
+			regex := rule.Regex + "                     "
 			regex = regex[0:20]
 			s = append(s, fmt.Sprintf("regex: %s message: %s ", regex, rule.Warning))
 		}

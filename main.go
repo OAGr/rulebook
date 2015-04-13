@@ -13,9 +13,6 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "Rulebook"
 	app.Usage = "Test code against simple rules"
-	app.Action = func(c *cli.Context) {
-		fmt.Println(ruleParser("./"))
-	}
 	app.Commands = []cli.Command{
 		{
 			Name:    "validate",
@@ -40,41 +37,84 @@ func main() {
 			},
 		},
 		{
-			Name:    "list",
-			Aliases: []string{"l"},
-			Usage:   "List current rules",
-			Action: func(c *cli.Context) {
-				rules := getRules()
-				println("Rulebook Rules")
-				println("")
-				for _, rule := range rules {
-					println(rule.String())
-				}
-				println("Server running on port %s ", c.Args().First())
-			},
-		},
-		{
-			Name:    "pull_request",
-			Aliases: []string{"p"},
-			Usage:   "Comment on a PR using local rules",
-			Action: func(c *cli.Context) {
-				println("Creating comments on PR", c.Args().First())
-			},
-		},
-		{
-			Name:    "server",
+			Name:    "run",
 			Aliases: []string{"s"},
 			Usage:   "run server on provided port number",
-			Action: func(c *cli.Context) {
-				println("Server running on port %s ", c.Args().First())
+			Subcommands: []cli.Command{
+				{
+					Name:  "server",
+					Usage: "initialize server (not yet implemented)",
+					Action: func(c *cli.Context) {
+						fmt.Println(CurrentLibrary().String())
+					},
+				},
+				{
+					Name:  "comment",
+					Usage: "use downloaded books",
+				},
+			},
+		},
+		{
+			Name:    "book",
+			Aliases: []string{"b"},
+			Usage:   "Manage Rulebooks",
+			Subcommands: []cli.Command{
+				{
+					Name:    "list",
+					Aliases: []string{"l"},
+					Usage:   "list downloaded books",
+					Action: func(c *cli.Context) {
+						fmt.Println(CurrentLibrary().String())
+					},
+				},
+				{
+					Name:    "rules",
+					Aliases: []string{"r"},
+					Usage:   "List current rules",
+					Action: func(c *cli.Context) {
+						rules := getRules()
+						println("Rulebook Rules")
+						println("")
+						for _, rule := range rules {
+							println(rule.String())
+						}
+						println("Server running on port %s ", c.Args().First())
+					},
+				},
+				{
+					Name:  "use",
+					Usage: "use downloaded books",
+					Action: func(c *cli.Context) {
+						book := c.Args().First()
+						if stringInSlice(book, getRulebookNames()) {
+							useBook(book)
+							println("Change ENV RULEBOOK to book %s", book)
+						} else {
+							println("No book %s", book)
+						}
+					},
+				},
+				{
+					Name:  "update",
+					Usage: "update current book",
+					Action: func(c *cli.Context) {
+						fmt.Println("will implement")
+					},
+				},
 			},
 		},
 	}
 	app.Run(os.Args)
 }
 
+func bookLocation() string {
+	//RULEBOOKSPATH
+	//RULEBOOK
+	return "/home/ozzie/rulebooks/github/oagr/rulebook1"
+}
+
 func getRules() []Rule {
-	return ruleParser("./")
+	return ruleParser(bookLocation())
 }
 
 func evaluateStdin() {
@@ -141,4 +181,13 @@ func isDiff(text []string) bool {
 
 func additions(input string) (ouput string) {
 	return input
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }
