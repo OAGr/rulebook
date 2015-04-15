@@ -5,7 +5,6 @@ import (
 	"github.com/oagr/fs"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -35,10 +34,10 @@ func currentBook() Rulebook {
 	return Rulebook{os.Getenv("RULEBOOK")}
 }
 
-func useBook(book string) {
-	fmt.Println(book)
-	os.Setenv("RULEBOOK", book)
-	exec.Command("sh", "-c", "EXPORT AA=bar")
+func (book Rulebook) use() {
+	println("Run this command:")
+	printThis := fmt.Sprintf("echo \"export RULEBOOK=%s\" | source /dev/stdin", book.name)
+	println(printThis)
 }
 
 func (book Rulebook) decoratedName() (decorated string) {

@@ -84,13 +84,11 @@ func main() {
 					Name:  "use",
 					Usage: "use downloaded books",
 					Action: func(c *cli.Context) {
-						book := c.Args().First()
-						if stringInSlice(book, getRulebookNames()) {
-							println("Run this command%s", book)
-							printThis := fmt.Sprintf("echo \"export RULEBOOK=%s\" | source /dev/stdin", book)
-							println(printThis)
+						bookName := c.Args().First()
+						if stringInSlice(bookName, getRulebookNames()) {
+							Rulebook{bookName}.use()
 						} else {
-							println("No book %s", book)
+							println("No book %s", bookName)
 						}
 					},
 				},
