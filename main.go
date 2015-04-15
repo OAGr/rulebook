@@ -78,7 +78,6 @@ func main() {
 						for _, rule := range rules {
 							println(rule.String())
 						}
-						println("Server running on port %s ", c.Args().First())
 					},
 				},
 				{
@@ -87,8 +86,9 @@ func main() {
 					Action: func(c *cli.Context) {
 						book := c.Args().First()
 						if stringInSlice(book, getRulebookNames()) {
-							useBook(book)
-							println("Change ENV RULEBOOK to book %s", book)
+							println("Run this command%s", book)
+							printThis := fmt.Sprintf("echo \"export RULEBOOK=%s\" | source /dev/stdin", book)
+							println(printThis)
 						} else {
 							println("No book %s", book)
 						}
@@ -108,9 +108,7 @@ func main() {
 }
 
 func bookLocation() string {
-	//RULEBOOKSPATH
-	//RULEBOOK
-	return "/home/ozzie/rulebooks/github/oagr/rulebook1"
+	return currentBook().path()
 }
 
 func getRules() []Rule {
@@ -130,7 +128,6 @@ func evaluateStdin() {
 
 func evaluateText(lines []string) {
 	rules := getRules()
-
 	var output []string
 	output = append(output, decoratedMessage(lines, rules, getMessageType(lines))...)
 	output = append(output, violationSummary(ViolatedLinesRules(lines, rules))...)

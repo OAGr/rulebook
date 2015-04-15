@@ -39,18 +39,6 @@ func useBook(book string) {
 	fmt.Println(book)
 	os.Setenv("RULEBOOK", book)
 	exec.Command("sh", "-c", "EXPORT AA=bar")
-	fmt.Println(os.Getenv("AA"))
-	fmt.Println(os.Getenv("RULEBOOK"))
-	//var env []string
-	//env = os.Environ()
-
-	//fmt.Println("List of Environtment variables : \n")
-
-	//for index, value := range env {
-	//name := strings.Split(value, "=") // split by = sign
-
-	//fmt.Printf("[%d] %s : %v\n", index, name[0], name[1])
-	//}
 }
 
 func (book Rulebook) decoratedName() (decorated string) {
@@ -59,6 +47,18 @@ func (book Rulebook) decoratedName() (decorated string) {
 		decorated = "*" + decorated[1:]
 	}
 	return
+}
+
+func rulebookDir() string {
+	if os.Getenv("RULEBOOK_PATH") == "" {
+		return os.Getenv("HOME") + "/.rulebooks/"
+	} else {
+		return os.Getenv("RULEBOOK_PATH")
+	}
+}
+
+func (book Rulebook) path() (path string) {
+	return (rulebookDir() + book.name)
 }
 
 func getRulebookNames() []string {
@@ -71,11 +71,9 @@ func getRulebookNames() []string {
 }
 
 func getRulebooks() []Rulebook {
-	toplevel := "/home/ozzie/rulebooks/"
-
 	var rulebooks []Rulebook
-	for _, gitDir := range getGitSubDirs(toplevel) {
-		rulebooks = append(rulebooks, Rulebook{getBookDir(toplevel, gitDir)})
+	for _, gitDir := range getGitSubDirs(rulebookDir()) {
+		rulebooks = append(rulebooks, Rulebook{getBookDir(rulebookDir(), gitDir)})
 	}
 	return rulebooks
 }
