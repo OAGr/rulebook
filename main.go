@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/codegangsta/cli"
+	"github.com/oagr/rulebook/book"
 	"os"
 	"os/exec"
 	"strings"
@@ -45,7 +46,7 @@ func main() {
 					Name:  "server",
 					Usage: "initialize server (not yet implemented)",
 					Action: func(c *cli.Context) {
-						fmt.Println(CurrentLibrary().String())
+						fmt.Println(book.CurrentLibrary().String())
 					},
 				},
 				{
@@ -64,7 +65,7 @@ func main() {
 					Aliases: []string{"l"},
 					Usage:   "list downloaded books",
 					Action: func(c *cli.Context) {
-						fmt.Println(CurrentLibrary().String())
+						fmt.Println(book.CurrentLibrary().String())
 					},
 				},
 				{
@@ -72,7 +73,7 @@ func main() {
 					Aliases: []string{"r"},
 					Usage:   "List current rules",
 					Action: func(c *cli.Context) {
-						rules := getRules()
+						rules := book.CurrentBook().Rules()
 						println("Rulebook Rules")
 						println("")
 						for _, rule := range rules {
@@ -85,8 +86,8 @@ func main() {
 					Usage: "use downloaded books",
 					Action: func(c *cli.Context) {
 						bookName := c.Args().First()
-						if stringInSlice(bookName, getRulebookNames()) {
-							Rulebook{bookName}.use()
+						if book.CurrentLibrary().HasBook(bookName) {
+							book.Rulebook{bookName}.Use()
 						} else {
 							println("No book %s", bookName)
 						}
@@ -105,14 +106,6 @@ func main() {
 	app.Run(os.Args)
 }
 
-func bookLocation() string {
-	return currentBook().path()
-}
-
-func getRules() []Rule {
-	return ruleParser(bookLocation())
-}
-
 func evaluateStdin() {
 	s := bufio.NewScanner(os.Stdin)
 
@@ -125,10 +118,10 @@ func evaluateStdin() {
 }
 
 func evaluateText(lines []string) {
-	rules := getRules()
+	rules := book.CurrentBook().Rules()
 	var output []string
 	output = append(output, decoratedMessage(lines, rules, getMessageType(lines))...)
-	output = append(output, violationSummary(ViolatedLinesRules(lines, rules))...)
+	output = append(output, book.ViolationSummary(book.ViolatedLinesRules(lines, rules))...)
 
 	for _, line := range output {
 		fmt.Println(line)
@@ -143,14 +136,14 @@ func getMessageType(lines []string) string {
 	}
 }
 
-func decoratedMessage(lines []string, rules []Rule, messageType string) []string {
+func decoratedMessage(lines []string, rules []book.Rule, messageType string) []string {
 	var decoratedLines []string
 	for _, line := range lines {
 		decoratedLines = append(decoratedLines, line)
 
-		violations := ViolatedLineRules(line, rules)
+		violations := book.ViolatedLineRules(line, rules)
 		if len(violations) > 0 && shouldCheck(line, messageType) {
-			decoratedLines = append(decoratedLines, violationError(violations))
+			decoratedLines = append(decoratedLines, book.ViolationError(violations))
 		}
 	}
 	return decoratedLines
@@ -158,31 +151,16 @@ func decoratedMessage(lines []string, rules []Rule, messageType string) []string
 
 func shouldCheck(line string, messageType string) bool {
 	if messageType == "diff" {
-		return isCommitAddition(line)
+		return book.IsCommitAddition(line)
 	} else {
 		return true
 	}
 }
 
-func isCommitAddition(line string) bool {
-	isAddition := "^\\+"
-	withoutColor := line[5:]
-	return DoesMatch(isAddition, line) || DoesMatch(isAddition, withoutColor)
-}
-
 func isDiff(text []string) bool {
-	return DoesMatch("diff", text[0])
+	return book.DoesMatch("diff", text[0])
 }
 
 func additions(input string) (ouput string) {
 	return input
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
 }
