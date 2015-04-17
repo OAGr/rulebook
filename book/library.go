@@ -26,6 +26,7 @@ func (l Library) HasBook(book string) bool {
 }
 
 func CurrentLibrary() (lib Library) {
+	lib = Library{}
 	return Library{findBooks()}
 }
 

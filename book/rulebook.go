@@ -2,6 +2,7 @@ package book
 
 import (
 	"fmt"
+	"github.com/oagr/rulebook/book/rule_parser"
 	"os"
 )
 
@@ -14,7 +15,7 @@ func CurrentBook() Rulebook {
 }
 
 func (b Rulebook) Rules() []Rule {
-	return ruleParser(b.path())
+	return rule_parser.rulesInDir(b.path())
 }
 
 func (b Rulebook) Use() {

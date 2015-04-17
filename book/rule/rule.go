@@ -1,4 +1,4 @@
-package book
+package rule
 
 import (
 	"fmt"
