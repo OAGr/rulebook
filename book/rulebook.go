@@ -2,20 +2,28 @@ package book
 
 import (
 	"fmt"
+	"github.com/oagr/rulebook/book/rule"
 	"github.com/oagr/rulebook/book/rule_parser"
 	"os"
 )
 
 type Rulebook struct {
-	Name string
+	Name  string
+	Rules []rule.Rule
 }
 
 func CurrentBook() Rulebook {
-	return Rulebook{os.Getenv("RULEBOOK")}
+	rulebook := Rulebook{Name: currentBookName()}
+	rulebook.Rules = rulebook.FindRules()
+	return rulebook
 }
 
-func (b Rulebook) Rules() []Rule {
-	return rule_parser.rulesInDir(b.path())
+func currentBookName() string {
+	return os.Getenv("RULEBOOK")
+}
+
+func (b Rulebook) EvaluateText(text string) string {
+	return EvaluateText{text: text, Book: b}.String()
 }
 
 func (b Rulebook) Use() {
@@ -24,9 +32,13 @@ func (b Rulebook) Use() {
 	println(printThis)
 }
 
+func (b Rulebook) FindRules() []rule.Rule {
+	return rule_parser.RulesInDir(b.path())
+}
+
 func (b Rulebook) decoratedName() (decorated string) {
 	decorated = "  " + b.Name
-	if b == CurrentBook() {
+	if b.Name == currentBookName() {
 		decorated = "*" + decorated[1:]
 	}
 	return

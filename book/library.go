@@ -44,7 +44,7 @@ func findBooks() (rulebooks []Rulebook) {
 
 	for i, p := range bookPaths {
 		name := BookPathToName(p, LibraryPath())
-		rulebooks[i] = Rulebook{name}
+		rulebooks[i] = Rulebook{Name: name}
 	}
 	return
 }
