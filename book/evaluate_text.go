@@ -30,6 +30,7 @@ func (t *EvaluateText) prepare() {
 		eline.Evaluate()
 		elines[i] = eline
 	}
+	t.lines = elines
 }
 
 func (t EvaluateText) body() string {

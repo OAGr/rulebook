@@ -23,7 +23,9 @@ func currentBookName() string {
 }
 
 func (b Rulebook) EvaluateText(text string) string {
-	return EvaluateText{text: text, Book: b}.String()
+	t := EvaluateText{text: text, Book: b}
+	t.Evaluate()
+	return t.String()
 }
 
 func (b Rulebook) Use() {

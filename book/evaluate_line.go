@@ -30,7 +30,7 @@ func (l EvaluateLine) String() (result string) {
 func (l EvaluateLine) BrokenRuleMessage() string {
 	s := "\x1b[31;1m"
 	s += "- Rulebook Violation ->  "
-	for _, rule := range l.Book.Rules {
+	for _, rule := range l.brokenRules {
 		s += fmt.Sprintf("{regex: %s, message: %s}", rule.Regex, rule.Warning)
 	}
 	s += "\x1b[0m"

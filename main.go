@@ -19,7 +19,7 @@ func main() {
 			Aliases: []string{"v"},
 			Usage:   "(default) Analyze code sent in via pipe command",
 			Action: func(c *cli.Context) {
-				evaluateStdin()
+				fmt.Println(evaluateStdin())
 			},
 		},
 		{
@@ -31,7 +31,7 @@ func main() {
 				if err != nil {
 					fmt.Printf("Terrible error %e", err)
 				} else {
-					evaluateText(string(diff))
+					fmt.Println(evaluateText(string(diff)))
 				}
 			},
 		},

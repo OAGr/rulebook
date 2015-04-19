@@ -17,34 +17,34 @@ func RulesInDir(dir string) (rules []rule.Rule) {
 	return
 }
 
-type item struct {
-	group struct {
-		warning string
-		regex   []string
-	}
-	warning string
-	regex   string
-}
+func (i Item) rules() (rules []rule.Rule) {
 
-func (i item) rules() (rules []rule.Rule) {
-
-	if i.warning != "" && i.regex != "" {
-		rules = append(rules, rule.Rule{i.regex, i.warning})
-	} else if i.group.warning != "" {
-		for _, regex := range i.group.regex {
-			rules = append(rules, rule.Rule{regex, i.group.warning})
+	if i.Warning != "" && i.Regex != "" {
+		rules = append(rules, rule.Rule{i.Regex, i.Warning})
+	} else if i.Group.Warning != "" {
+		for _, regex := range i.Group.Regex {
+			rules = append(rules, rule.Rule{regex, i.Group.Warning})
 		}
 	}
 
 	return rules
 }
 
+type Item struct {
+	Group struct {
+		Warning string
+		Regex   []string
+	}
+	Warning string
+	Regex   string
+}
+
 func rulesInFile(filename string) (rules []rule.Rule) {
-	m := struct{ Elements []item }{}
+	m := struct{ Rules []Item }{}
 	yamlFile, _ := ioutil.ReadFile(filename)
 	yaml.Unmarshal([]byte(string(yamlFile)), &m)
 
-	for _, item := range m.Elements {
+	for _, item := range m.Rules {
 		rules = append(rules, item.rules()...)
 	}
 
