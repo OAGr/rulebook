@@ -20,6 +20,10 @@ func envBookName() string {
 	return os.Getenv("RULEBOOK")
 }
 
+func (b *Rulebook) Change() {
+	b.IsCurrent = true
+}
+
 func (b Rulebook) Update() {
 	cmd, _ := exec.Command("git", "-C", b.path(), "pull", "origin", "master").Output()
 	fmt.Println(string(cmd))
