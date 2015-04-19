@@ -5,6 +5,7 @@ import (
 	"github.com/oagr/rulebook/book/rule"
 	"github.com/oagr/rulebook/book/rule_parser"
 	"os"
+	"os/exec"
 )
 
 type Rulebook struct {
@@ -20,6 +21,11 @@ func CurrentBook() Rulebook {
 
 func currentBookName() string {
 	return os.Getenv("RULEBOOK")
+}
+
+func (b Rulebook) Update() {
+	cmd, _ := exec.Command("git", "-C", b.path(), "pull", "origin", "master").Output()
+	fmt.Println(string(cmd))
 }
 
 func (b Rulebook) EvaluateText(text string) string {

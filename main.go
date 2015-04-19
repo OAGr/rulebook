@@ -95,7 +95,7 @@ func main() {
 					Name:  "update",
 					Usage: "update current book",
 					Action: func(c *cli.Context) {
-						fmt.Println("will implement")
+						book.CurrentBook().Update()
 					},
 				},
 			},
