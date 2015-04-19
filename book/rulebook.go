@@ -11,17 +11,12 @@ import (
 )
 
 type Rulebook struct {
-	Name  string
-	Rules []rule.Rule
+	Name      string
+	Rules     []rule.Rule
+	IsCurrent bool
 }
 
-func CurrentBook() Rulebook {
-	rulebook := Rulebook{Name: currentBookName()}
-	rulebook.Rules = rulebook.FindRules()
-	return rulebook
-}
-
-func currentBookName() string {
+func envBookName() string {
 	return os.Getenv("RULEBOOK")
 }
 
@@ -48,10 +43,14 @@ func (b Rulebook) FindRules() []rule.Rule {
 
 func (b Rulebook) decoratedName() (decorated string) {
 	decorated = "  " + b.Name
-	if b.Name == currentBookName() {
+	if b.IsCurrent {
 		decorated = "*" + decorated[1:]
 	}
 	return
+}
+
+func (b *Rulebook) makeCurrent() {
+	b.IsCurrent = true
 }
 
 func (b Rulebook) path() (path string) {

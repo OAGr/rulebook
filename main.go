@@ -71,7 +71,7 @@ func main() {
 					Aliases: []string{"r"},
 					Usage:   "List current rules",
 					Action: func(c *cli.Context) {
-						rules := book.CurrentBook().Rules
+						rules := book.CurrentLibrary().CurrentBook().Rules
 						println("Rulebook Rules")
 						println("")
 						for _, rule := range rules {
@@ -95,7 +95,7 @@ func main() {
 					Name:  "update",
 					Usage: "update current book",
 					Action: func(c *cli.Context) {
-						book.CurrentBook().Update()
+						book.CurrentLibrary().CurrentBook().Update()
 					},
 				},
 			},
@@ -110,5 +110,5 @@ func evaluateStdin() string {
 }
 
 func evaluateText(text string) string {
-	return book.CurrentBook().EvaluateText(text)
+	return book.CurrentLibrary().CurrentBook().EvaluateText(text)
 }

@@ -1,12 +1,21 @@
 package book
 
 import (
+	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 )
 
 type Library struct {
 	books []Rulebook
+}
+
+func CurrentLibrary() (lib Library) {
+	lib = Library{}
+	lib.books = lib.findBooks()
+	lib.setCurrentBook()
+	return
 }
 
 func (l Library) String() string {
@@ -17,17 +26,43 @@ func (l Library) String() string {
 	return strings.Join(decorated, "\n")
 }
 
-func (l Library) HasBook(book string) bool {
-	bookNames := make([]string, len(l.books))
+func (l Library) CurrentBook() Rulebook {
+	for _, b := range l.books {
+		if b.IsCurrent {
+			return b
+		}
+	}
+	return Rulebook{}
+}
+
+func (l Library) GetRulebook(d DotRulebookFile) (book Rulebook, err error) {
+	file, _ := ioutil.ReadFile(d.path)
+	rulebookName := strings.TrimSpace(string(file))
+	if l.HasBook(rulebookName) {
+		book = l.GetBook(rulebookName)
+	}
+	return book, err
+}
+
+func (l Library) bookNames() (bookNames []string) {
+	bookNames = make([]string, len(l.books))
 	for i, s := range l.books {
 		bookNames[i] = s.Name
 	}
-	return stringInSlice(book, bookNames)
+	return
 }
 
-func CurrentLibrary() (lib Library) {
-	lib = Library{}
-	return Library{findBooks()}
+func (l Library) HasBook(book string) bool {
+	return stringInSlice(book, l.bookNames())
+}
+
+func (l Library) GetBook(bookName string) Rulebook {
+	for _, s := range l.books {
+		if s.Name == bookName {
+			return s
+		}
+	}
+	return Rulebook{}
 }
 
 func LibraryPath() string {
@@ -38,7 +73,35 @@ func LibraryPath() string {
 	}
 }
 
-func findBooks() (rulebooks []Rulebook) {
+// PreparationForLibrary
+// The bookID trick is a temporary trick.
+// Before I used the getBook method, but that would return the right book,
+// but would reference a different object. This seems like a pointer problem to get right.
+
+func (l *Library) setCurrentBook() {
+	name := l.findCurrentBookName()
+	l.books[l.bookId(name)].IsCurrent = true
+}
+
+func (l Library) bookId(name string) (id int) {
+	for i, b := range l.books {
+		if b.Name == name {
+			return i
+		}
+	}
+	return 0
+}
+
+func (l Library) findCurrentBookName() (name string) {
+	a := NewCurrentProject()
+	b, err := l.GetRulebook(a.DotRulebookFile)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return b.Name
+}
+
+func (l Library) findBooks() (rulebooks []Rulebook) {
 	bookPaths := getGitSubDirs(LibraryPath())
 	rulebooks = make([]Rulebook, len(bookPaths))
 
