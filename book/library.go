@@ -80,7 +80,9 @@ func LibraryPath() string {
 
 func (l *Library) setCurrentBook() {
 	name := l.findCurrentBookName()
-	l.books[l.bookId(name)].IsCurrent = true
+	b := &l.books[l.bookId(name)]
+	b.IsCurrent = true
+	b.Rules = b.FindRules()
 }
 
 func (l Library) bookId(name string) (id int) {
