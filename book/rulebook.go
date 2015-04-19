@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"github.com/oagr/rulebook/book/rule"
 	"github.com/oagr/rulebook/book/rule_parser"
+	//"io/ioutil"
 	"os"
 	"os/exec"
+	//"strings"
 )
 
 type Rulebook struct {
