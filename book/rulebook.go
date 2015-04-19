@@ -7,17 +7,13 @@ import (
 	//"io/ioutil"
 	"os"
 	"os/exec"
-	//"strings"
+	"strings"
 )
 
 type Rulebook struct {
 	Name      string
 	Rules     []rule.Rule
 	IsCurrent bool
-}
-
-func envBookName() string {
-	return os.Getenv("RULEBOOK")
 }
 
 func (b *Rulebook) Change() {
@@ -27,6 +23,25 @@ func (b *Rulebook) Change() {
 func (b Rulebook) Update() {
 	cmd, _ := exec.Command("git", "-C", b.path(), "pull", "origin", "master").Output()
 	fmt.Println(string(cmd))
+}
+
+func (b Rulebook) Pull() {
+	name := strings.Replace(b.Name, "/", ":", 1)
+	cloneFrom := "git@" + name + ".git"
+	fmt.Println("Attempting to download", cloneFrom, "to library path", LibraryPath())
+	_, err := exec.Command("git", "clone", cloneFrom, b.path()).Output()
+	if err == nil {
+		fmt.Println("Download was successful")
+	} else {
+		fmt.Println("Download failed with error", err)
+	}
+}
+
+func (b *Rulebook) MakeCurrent() {
+	b.IsCurrent = true
+	if b.isDownloaded() {
+		b.Rules = b.FindRules()
+	}
 }
 
 func (b Rulebook) EvaluateText(text string) string {
@@ -50,13 +65,17 @@ func (b Rulebook) decoratedName() (decorated string) {
 	if b.IsCurrent {
 		decorated = "*" + decorated[1:]
 	}
+	if !b.isDownloaded() {
+		decorated = decorated + " [Not Downloaded]"
+	}
 	return
-}
-
-func (b *Rulebook) makeCurrent() {
-	b.IsCurrent = true
 }
 
 func (b Rulebook) path() (path string) {
 	return (LibraryPath() + b.Name)
+}
+
+func (b Rulebook) isDownloaded() bool {
+	_, err := os.Stat(b.path())
+	return (err == nil)
 }

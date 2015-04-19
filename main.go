@@ -92,6 +92,13 @@ func main() {
 					},
 				},
 				{
+					Name:  "pull",
+					Usage: "use downloaded books",
+					Action: func(c *cli.Context) {
+						book.CurrentLibrary().CurrentBook().Pull()
+					},
+				},
+				{
 					Name:  "update",
 					Usage: "update current book",
 					Action: func(c *cli.Context) {

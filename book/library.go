@@ -67,8 +67,10 @@ func (l Library) bookNames() (bookNames []string) {
 // PreparationForLibrary
 func (l *Library) setCurrentBook() {
 	book := l.findCurrentBook()
-	book.IsCurrent = true
-	book.Rules = book.FindRules()
+	book.MakeCurrent()
+	if !l.HasBook(book.Name) {
+		l.books = append(l.books, book)
+	}
 }
 
 func (l Library) bookId(name string) (id int) {
@@ -80,11 +82,14 @@ func (l Library) bookId(name string) (id int) {
 	return 0
 }
 
-func (l Library) getRulebook(d DotRulebookFile) (book *Rulebook, err error) {
+func (l *Library) getRulebook(d DotRulebookFile) (book *Rulebook, err error) {
 	file, _ := ioutil.ReadFile(d.path)
 	rulebookName := strings.TrimSpace(string(file))
 	if l.HasBook(rulebookName) {
 		book = l.GetBook(rulebookName)
+	} else {
+		book = &Rulebook{Name: rulebookName}
+		l.books = append(l.books, book)
 	}
 	return book, err
 }
@@ -96,6 +101,10 @@ func (l Library) findCurrentBook() *Rulebook {
 		fmt.Println(err)
 	}
 	return b
+}
+
+func envBookName() string {
+	return os.Getenv("RULEBOOK")
 }
 
 func (l Library) findBooks() (rulebooks []*Rulebook) {
