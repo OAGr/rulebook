@@ -22,7 +22,7 @@ func (b *Rulebook) Change() {
 
 func (b Rulebook) Update() {
 	cmd, _ := exec.Command("git", "-C", b.path(), "pull", "origin", "master").Output()
-	fmt.Println(string(cmd))
+	fmt.Println(strings.TrimSpace(string(cmd)))
 }
 
 func (b Rulebook) Pull() {
@@ -51,8 +51,9 @@ func (b Rulebook) EvaluateText(text string) string {
 }
 
 func (b Rulebook) Use() {
-	println("Run this command:")
-	printThis := fmt.Sprintf("echo \"export RULEBOOK=%s\" | source /dev/stdin", b.Name)
+	println("The rulebook can only be modified if not in a project with a .rulebook file.")
+	println("To change rulebook, run this command:")
+	printThis := fmt.Sprintf("export RULEBOOK=%s", b.Name)
 	println(printThis)
 }
 

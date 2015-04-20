@@ -73,7 +73,6 @@ func main() {
 					Action: func(c *cli.Context) {
 						rules := book.CurrentLibrary().CurrentBook().Rules
 						println("Rulebook Rules")
-						println("")
 						for _, rule := range rules {
 							println(rule.String())
 						}
