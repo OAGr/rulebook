@@ -116,5 +116,6 @@ func evaluateStdin() string {
 }
 
 func evaluateText(text string) string {
-	return book.CurrentLibrary().CurrentBook().EvaluateText(text)
+	b := book.CurrentLibrary().CurrentBook()
+	return book.ExecuteTextStrategy(text, b, "normal")
 }

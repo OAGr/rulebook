@@ -44,12 +44,6 @@ func (b *Rulebook) MakeCurrent() {
 	}
 }
 
-func (b Rulebook) EvaluateText(text string) string {
-	t := EvaluateText{text: text, Book: b}
-	t.Evaluate()
-	return t.String()
-}
-
 func (b Rulebook) Use() {
 	println("The rulebook can only be modified if not in a project with a .rulebook file.")
 	println("To change rulebook, run this command:")
