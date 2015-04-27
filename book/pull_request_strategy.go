@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/go-github/github"
+	"strings"
 )
 
 type PRStrategy struct {
@@ -23,48 +24,69 @@ func ExecutePRStrategy(url string, book *Rulebook) (err error) {
 		return errors.New("input: Needs a book!")
 	}
 	evaluator := &Evaluator{Rulebook: book}
-	strategy := PRStrategy{evaluator: evaluator}
-	strategy.Prepare(url)
-	//strategy.LoadEvaluator()
-	//strategy.evaluator.Evaluate()
-	//strategy.Merge()
-	//fmt.Println(strategy.PRLines[0])
-	//return strategy.Render()
+	strategy := PRStrategy{evaluator: evaluator, url: url}
+	strategy.Prepare()
+	strategy.LoadAndSplitEvaluator()
+	strategy.evaluator.Evaluate()
+	strategy.Merge()
+	err = strategy.SendComments()
 	return err
 }
 
-func (p *PRStrategy) Prepare(url string) error {
-	fmt.Println(p)
-	user, repo, _ := parseUrl(url)
-	fmt.Println(user, repo)
+func (p *PRStrategy) SendComments() (err error) {
+	user, repo, prNumber, err := parseUrl(p.url)
+	if err != nil {
+		return err
+	}
+	for _, l := range p.PRLines {
+		if len(l.EvaluateLine.brokenRules) != 0 {
+			input := l.PRComment(p.SHA)
+			_, _, err = p.client.PullRequests.CreateComment(user, repo, prNumber, input)
+			if err != nil {
+				return err
+			}
+			fmt.Println("Posted Comment:", l.String())
+		}
+	}
+	return
+}
+
+func (p *PRStrategy) Prepare() error {
 	client, err := getClient()
 	if err != nil {
 		return err
 	}
-	commits, _, _ := client.PullRequests.ListCommits(user, repo, 1, nil)
+	user, repo, pull_num, err := parseUrl(p.url)
+	if err != nil {
+		return err
+	}
+	commits, _, _ := client.PullRequests.ListCommits(user, repo, pull_num, nil)
+	if err != nil {
+		return err
+	}
 	p.SHA = *commits[len(commits)-1].SHA
-	files, _, _ := client.PullRequests.ListFiles(user, repo, 1, nil)
+	p.client = client
+	files, _, _ := client.PullRequests.ListFiles(user, repo, pull_num, nil)
 	p.files = files
-	fmt.Println(p)
 	return nil
 }
 
-//func (p *PRStrategy) LoadEvaluator() {
-//for _, f := range p.files {
-//lines := strings.Split(f.Patch, "\n")
-//EvaluateLines := make(EvaluateLine, len(lines))
-//PRLines := make(PRLine, len(lines))
-//for i, l := range lines {
-//EvaluateLines[i] = EvaluateLine{line: l}
-//PrLines[i] = PrLine{SHA: p.SHA, file: f.Filename, lineNumber: i}
-//}
-//p.evaluator.lines = append(p.evaluator.lines, EvaluateLines)
-//p.PRLines = append(p.PRLines, PRLines)
-//}
-//}
+func (p *PRStrategy) LoadAndSplitEvaluator() {
+	for _, f := range p.files {
+		lines := strings.Split(*f.Patch, "\n")
+		EvaluateLines := make([]*EvaluateLine, len(lines))
+		PRLines := make([]PRLine, len(lines))
+		for i, l := range lines {
+			EvaluateLines[i] = &EvaluateLine{line: l, evaluator: p.evaluator}
+			PRLines[i] = PRLine{SHA: p.SHA, Filename: *f.Filename, lineNumber: i}
+		}
+		p.evaluator.lines = append(p.evaluator.lines, EvaluateLines...)
+		p.PRLines = append(p.PRLines, PRLines...)
+	}
+}
 
-//func (p *PRStrategy) Merge() {
-//for _, i := range p.PRLines {
-//PrLines[i].EvaluateLine = EvaluateLine[i]
-//}
-//}
+func (p *PRStrategy) Merge() {
+	for i, _ := range p.PRLines {
+		p.PRLines[i].EvaluateLine = *p.evaluator.lines[i]
+	}
+}

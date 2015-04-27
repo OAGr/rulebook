@@ -1,7 +1,6 @@
 package book
 
 import (
-	//"fmt"
 	"github.com/oagr/rulebook/book/rule"
 )
 
