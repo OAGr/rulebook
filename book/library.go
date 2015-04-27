@@ -1,7 +1,6 @@
 package book
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -82,7 +81,7 @@ func (l Library) bookId(name string) (id int) {
 	return 0
 }
 
-func (l *Library) getRulebook(d DotRulebookFile) (book *Rulebook, err error) {
+func (l *Library) getRulebook(d DotRulebookFile) (book *Rulebook) {
 	file, _ := ioutil.ReadFile(d.path)
 	rulebookName := strings.TrimSpace(string(file))
 	if l.HasBook(rulebookName) {
@@ -91,15 +90,12 @@ func (l *Library) getRulebook(d DotRulebookFile) (book *Rulebook, err error) {
 		book = &Rulebook{Name: rulebookName}
 		l.books = append(l.books, book)
 	}
-	return book, err
+	return book
 }
 
 func (l Library) findCurrentBook() *Rulebook {
 	a := NewCurrentProject()
-	b, err := l.getRulebook(a.DotRulebookFile)
-	if err != nil {
-		fmt.Println(err)
-	}
+	b := l.getRulebook(a.DotRulebookFile)
 	return b
 }
 

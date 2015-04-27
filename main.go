@@ -50,6 +50,14 @@ func main() {
 				{
 					Name:  "comment",
 					Usage: "use downloaded books",
+					Action: func(c *cli.Context) {
+						url := c.Args().First()
+						b := book.CurrentLibrary().CurrentBook()
+						err := book.ExecutePRStrategy(url, b)
+						if err != nil {
+							fmt.Println("PR Comment Failed:", err)
+						}
+					},
 				},
 			},
 		},
@@ -73,7 +81,6 @@ func main() {
 					Action: func(c *cli.Context) {
 						rules := book.CurrentLibrary().CurrentBook().Rules
 						println("Rulebook Rules")
-						println("")
 						for _, rule := range rules {
 							println(rule.String())
 						}
@@ -117,5 +124,6 @@ func evaluateStdin() string {
 }
 
 func evaluateText(text string) string {
-	return book.CurrentLibrary().CurrentBook().EvaluateText(text)
+	b := book.CurrentLibrary().CurrentBook()
+	return book.ExecuteTextStrategy(text, b, "normal")
 }
