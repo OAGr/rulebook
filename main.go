@@ -55,7 +55,7 @@ func main() {
 						b := book.CurrentLibrary().CurrentBook()
 						err := book.ExecutePRStrategy(url, b)
 						if err != nil {
-							fmt.Println("Error", err)
+							fmt.Println("PR Comment Failed:", err)
 						}
 					},
 				},

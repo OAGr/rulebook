@@ -25,12 +25,15 @@ func ExecutePRStrategy(url string, book *Rulebook) (err error) {
 	}
 	evaluator := &Evaluator{Rulebook: book}
 	strategy := PRStrategy{evaluator: evaluator, url: url}
-	strategy.Prepare()
+	err = strategy.Prepare()
+	if err != nil {
+		return
+	}
 	strategy.LoadAndSplitEvaluator()
 	strategy.evaluator.Evaluate()
 	strategy.Merge()
 	err = strategy.SendComments()
-	return err
+	return
 }
 
 func (p *PRStrategy) SendComments() (err error) {
@@ -60,7 +63,7 @@ func (p *PRStrategy) Prepare() error {
 	if err != nil {
 		return err
 	}
-	commits, _, _ := client.PullRequests.ListCommits(user, repo, pull_num, nil)
+	commits, _, err := client.PullRequests.ListCommits(user, repo, pull_num, nil)
 	if err != nil {
 		return err
 	}

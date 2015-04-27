@@ -9,27 +9,17 @@ import (
 	"strings"
 )
 
-//func commentOnPr(url string) {
-
-//for _, v := range violations {
-//input := &github.PullRequestComment{
-//Body:     github.String(v.rule.Warning),
-//CommitID: SHA,
-//Path:     github.String(v.Filename),
-//Position: github.Int(v.line),
-//}
-//comment, response, err := client.PullRequests.CreateComment(user, repo, 1, input)
-////fmt.Println(comment, response, err)
-////}
-//}
-
 func parseUrl(url string) (user string, repo string, pull_num int, err error) {
 	params := strings.Split(url[8:], "/")
+	if len(params) < 5 {
+		err = errors.New("ParseError: could not parse url")
+		return
+	}
 	user = params[1]
 	repo = params[2]
 	pull_num, err = strconv.Atoi(params[4])
-	if len(user) == 0 || len(repo) == 0 || len(repo) == 0 {
-		err = errors.New("ParseError: could not parse url")
+	if err != nil {
+		return
 	}
 	return user, repo, pull_num, err
 }
