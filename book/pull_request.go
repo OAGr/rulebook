@@ -10,6 +10,10 @@ import (
 )
 
 func parseUrl(url string) (user string, repo string, pull_num int, err error) {
+	if len(url) < 18 || url[0:18] != "https://github.com" {
+		err = errors.New("Comment URL must start with 'https://github.com'")
+		return
+	}
 	params := strings.Split(url[8:], "/")
 	if len(params) < 5 {
 		err = errors.New("ParseError: could not parse url")

@@ -37,7 +37,6 @@ func (t *TextStrategy) Merge() {
 }
 
 func (t TextStrategy) Render() string {
-	fmt.Println(t.evaluator.lines[0].brokenRules)
 	return (t.body() + t.summary())
 }
 
@@ -53,17 +52,15 @@ func (t TextStrategy) summary() string {
 	rules := t.evaluator.brokenRules()
 	var s []string
 	if len(rules) > 0 {
-		s = append(s, "==================================================")
-		s = append(s, fmt.Sprintf("%d Rulebook Violations ", len(rules)))
-		s = append(s, "--------------------------------------------------")
-		s = append(s, "\x1b[31;1m")
+		s = append(s, "---------------------")
+		s = append(s, fmt.Sprintf("\x1b[31;1m%d Rulebook Violations\x1b[0m", len(rules)))
 		for _, rule := range rules {
 			regex := rule.Regex + "                     "
 			regex = regex[0:20]
 			s = append(s, fmt.Sprintf("regex: %s message: %s ", regex, rule.Warning))
 		}
-		s = append(s, "\x1b[0m")
-		s = append(s, "==================================================")
+		//s = append(s, "\x1b[0m")
 	}
-	return strings.Join(s, "\n")
+	validations := strings.Join(s, "\n")
+	return validations
 }

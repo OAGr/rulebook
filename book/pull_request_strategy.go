@@ -19,9 +19,9 @@ type PRStrategy struct {
 
 func ExecutePRStrategy(url string, book *Rulebook) (err error) {
 	if url == "" {
-		return errors.New("input: Must give a url")
+		return errors.New("No url provided. Example: `rulebook comment https://github.com/foo/bar/1`")
 	} else if book == nil {
-		return errors.New("input: Needs a book!")
+		return errors.New("No rulebook provided.  Check rulebook book list to see a list of all available.")
 	}
 	evaluator := &Evaluator{Rulebook: book}
 	strategy := PRStrategy{evaluator: evaluator, url: url}

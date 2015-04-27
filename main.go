@@ -12,20 +12,22 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "Rulebook"
-	app.Usage = "Test code against simple rules"
+	app.Usage = "Simple Project Specific Linting"
+	app.Authors = []cli.Author{cli.Author{Name: "Ozzie Gooen", Email: "ozzieagooen@gmail.com"}}
+	app.Version = "0.1.0"
 	app.Commands = []cli.Command{
 		{
 			Name:    "validate",
 			Aliases: []string{"v"},
-			Usage:   "(default) Analyze code sent in via pipe command",
+			Usage:   "Analyze content sent in via pipe command",
 			Action: func(c *cli.Context) {
 				fmt.Println(evaluateStdin())
 			},
 		},
 		{
 			Name:    "diff",
-			Aliases: []string{"v"},
-			Usage:   "validates `git diff` in current git repo",
+			Aliases: []string{"d"},
+			Usage:   "Analyze content from `git diff` in current repository",
 			Action: func(c *cli.Context) {
 				diff, err := exec.Command("sh", "-c", "git diff --color").Output()
 				if err != nil {
@@ -36,40 +38,27 @@ func main() {
 			},
 		},
 		{
-			Name:    "run",
-			Aliases: []string{"s"},
-			Usage:   "run server on provided port number",
-			Subcommands: []cli.Command{
-				{
-					Name:  "server",
-					Usage: "initialize server (not yet implemented)",
-					Action: func(c *cli.Context) {
-						fmt.Println(book.CurrentLibrary().String())
-					},
-				},
-				{
-					Name:  "comment",
-					Usage: "use downloaded books",
-					Action: func(c *cli.Context) {
-						url := c.Args().First()
-						b := book.CurrentLibrary().CurrentBook()
-						err := book.ExecutePRStrategy(url, b)
-						if err != nil {
-							fmt.Println("PR Comment Failed:", err)
-						}
-					},
-				},
+			Name:    "comment",
+			Aliases: []string{"c"},
+			Usage:   "Comment on a specific Github pull request",
+			Action: func(c *cli.Context) {
+				url := c.Args().First()
+				b := book.CurrentLibrary().CurrentBook()
+				err := book.ExecutePRStrategy(url, b)
+				if err != nil {
+					fmt.Println("PR Comment Failed:", err)
+				}
 			},
 		},
 		{
 			Name:    "book",
 			Aliases: []string{"b"},
-			Usage:   "Manage Rulebooks",
+			Usage:   "View & manage rulebooks",
 			Subcommands: []cli.Command{
 				{
 					Name:    "list",
 					Aliases: []string{"l"},
-					Usage:   "list downloaded books",
+					Usage:   "List all downloaded books",
 					Action: func(c *cli.Context) {
 						fmt.Println(book.CurrentLibrary().String())
 					},
@@ -77,7 +66,7 @@ func main() {
 				{
 					Name:    "rules",
 					Aliases: []string{"r"},
-					Usage:   "List current rules",
+					Usage:   "List all rules in the current book",
 					Action: func(c *cli.Context) {
 						rules := book.CurrentLibrary().CurrentBook().Rules
 						println("Rulebook Rules")
@@ -88,7 +77,7 @@ func main() {
 				},
 				{
 					Name:  "use",
-					Usage: "use downloaded books",
+					Usage: "Use a specific book",
 					Action: func(c *cli.Context) {
 						bookName := c.Args().First()
 						if book.CurrentLibrary().HasBook(bookName) {
@@ -99,15 +88,15 @@ func main() {
 					},
 				},
 				{
-					Name:  "pull",
-					Usage: "use downloaded books",
+					Name:  "clone",
+					Usage: "Run `git clone` to get the currently selected book from Github",
 					Action: func(c *cli.Context) {
-						book.CurrentLibrary().CurrentBook().Pull()
+						book.CurrentLibrary().CurrentBook().Clone()
 					},
 				},
 				{
 					Name:  "update",
-					Usage: "update current book",
+					Usage: "Run `git pull` to update the currently selected book from Github",
 					Action: func(c *cli.Context) {
 						book.CurrentLibrary().CurrentBook().Update()
 					},

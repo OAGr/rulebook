@@ -25,7 +25,7 @@ func (b Rulebook) Update() {
 	fmt.Println(strings.TrimSpace(string(cmd)))
 }
 
-func (b Rulebook) Pull() {
+func (b Rulebook) Clone() {
 	name := strings.Replace(b.Name, "/", ":", 1)
 	cloneFrom := "git@" + name + ".git"
 	fmt.Println("Attempting to download", cloneFrom, "to library path", LibraryPath())
