@@ -25,10 +25,10 @@ func ExecutePRStrategy(url string, book *Rulebook) (err error) {
 	evaluator := &Evaluator{Rulebook: book}
 	strategy := PRStrategy{evaluator: evaluator}
 	strategy.Prepare(url)
-	strategy.LoadEvaluator()
-	strategy.evaluator.Evaluate()
-	strategy.Merge()
-	fmt.Println(strategy.PRLines[0])
+	//strategy.LoadEvaluator()
+	//strategy.evaluator.Evaluate()
+	//strategy.Merge()
+	//fmt.Println(strategy.PRLines[0])
 	//return strategy.Render()
 	return err
 }
@@ -41,15 +41,11 @@ func (p *PRStrategy) Prepare(url string) error {
 	if err != nil {
 		return err
 	}
-	commits, _, _ := client.PullRequests.ListCommits("oagr", "frequency_list", 1, nil)
-	fmt.Println(commits)
+	commits, _, _ := client.PullRequests.ListCommits(user, repo, 1, nil)
+	p.SHA = *commits[len(commits)-1].SHA
 	files, _, _ := client.PullRequests.ListFiles(user, repo, 1, nil)
-	fmt.Println(files)
-	//p.SHA = *commits[len(commits)-1].SHA
-	//fmt.Println(p)
-	//files, _, _ := client.PullRequests.ListFiles(user, repo, 1, nil)
-	//p.files = files
-	//fmt.Println(p)
+	p.files = files
+	fmt.Println(p)
 	return nil
 }
 
