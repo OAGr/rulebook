@@ -50,6 +50,14 @@ func main() {
 				{
 					Name:  "comment",
 					Usage: "use downloaded books",
+					Action: func(c *cli.Context) {
+						url := c.Args().First()
+						b := book.CurrentLibrary().CurrentBook()
+						err := book.ExecutePRStrategy(url, b)
+						if err != nil {
+							fmt.Println("Error", err)
+						}
+					},
 				},
 			},
 		},

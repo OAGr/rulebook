@@ -1,35 +1,26 @@
 package book
 
-import ()
+import (
+	"errors"
+	"github.com/google/go-github/github"
+	"golang.org/x/oauth2"
+	"os"
+	"strings"
+)
 
-func commentOnPr(url string) {
-	user, repo, _ := parseUrl(url)
+//func commentOnPr(url string) {
 
-	client := getClient()
-	commits, _, _ := client.PullRequests.ListCommits(user, repo, 1, nil)
-	SHA := commits[len(commits)-1].SHA
-
-	files, _, _ := client.PullRequests.ListFiles(user, repo, 1, nil)
-
-	var violations []Violation
-	for _, file := range files {
-		fmt.Println(file)
-		//violations = append(violations, fileViolations(file)...)
-	}
-
-	for _, v := range violations {
-		input := &github.PullRequestComment{
-			Body:     github.String(v.rule.Warning),
-			CommitID: SHA,
-			Path:     github.String(v.Filename),
-			Position: github.Int(v.line),
-		}
-		comment, response, err := client.PullRequests.CreateComment(user, repo, 1, input)
-		fmt.Println(comment, response, err)
-	}
-
-	fmt.Println(violations)
-}
+////for _, v := range violations {
+////input := &github.PullRequestComment{
+////Body:     github.String(v.rule.Warning),
+////CommitID: SHA,
+////Path:     github.String(v.Filename),
+////Position: github.Int(v.line),
+////}
+////comment, response, err := client.PullRequests.CreateComment(user, repo, 1, input)
+////fmt.Println(comment, response, err)
+////}
+//}
 
 func parseUrl(url string) (user string, repo string, pull_num string) {
 	params := strings.Split(url[8:], "/")
@@ -48,13 +39,16 @@ func (t *tokenSource) Token() (*oauth2.Token, error) {
 	return t.token, nil
 }
 
-func getClient() (client *github.Client) {
+func getClient() (client *github.Client, err error) {
 	code := os.Getenv("GITHUB_TEST_TOKEN")
+	if code == "" {
+		return nil, errors.New("Need GITHUB_TEST_TOKEN to use github client")
+	}
 	ts := &tokenSource{
 		&oauth2.Token{AccessToken: code},
 	}
 
 	tc := oauth2.NewClient(oauth2.NoContext, ts)
 
-	return github.NewClient(tc)
+	return github.NewClient(tc), nil
 }

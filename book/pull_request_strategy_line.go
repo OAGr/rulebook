@@ -11,10 +11,18 @@ type PRLine struct {
 	lineNumber   int
 }
 
-func (l TextLine) String() (result string) {
+func (l PRLine) String() (result string) {
 	result = l.EvaluateLine.line
-	if l.shouldShowError() && len(l.EvaluateLine.brokenRules) != 0 {
+	if len(l.EvaluateLine.brokenRules) != 0 {
 		result += "\n" + l.BrokenRuleMessage()
 	}
 	return
+}
+
+func (l PRLine) BrokenRuleMessage() string {
+	s := "- Rulebook Violation  "
+	for _, rule := range l.EvaluateLine.brokenRules {
+		s += fmt.Sprintf("{regex: %s, message: %s}", rule.Regex, rule.Warning)
+	}
+	return s
 }
