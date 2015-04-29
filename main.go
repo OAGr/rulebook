@@ -101,6 +101,14 @@ func main() {
 						book.CurrentLibrary().CurrentBook().Update()
 					},
 				},
+				{
+					Name:    "test",
+					Aliases: []string{"t"},
+					Usage:   "Test Rulebook",
+					Action: func(c *cli.Context) {
+						fmt.Println(book.CurrentLibrary().CurrentBook().Test())
+					},
+				},
 			},
 		},
 	}

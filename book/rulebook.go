@@ -74,3 +74,11 @@ func (b Rulebook) isDownloaded() bool {
 	_, err := os.Stat(b.path())
 	return (err == nil)
 }
+
+func (b Rulebook) Test() string {
+	var result []string
+	for _, rule := range b.Rules {
+		result = append(result, rule.Test()...)
+	}
+	return strings.Join(result, "\n")
+}

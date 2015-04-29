@@ -17,19 +17,6 @@ func RulesInDir(dir string) (rules []rule.Rule) {
 	return
 }
 
-func (i Item) rules() (rules []rule.Rule) {
-
-	if i.Warning != "" && i.Regex != "" {
-		rules = append(rules, rule.Rule{i.Regex, i.Warning})
-	} else if i.Group.Warning != "" {
-		for _, regex := range i.Group.Regex {
-			rules = append(rules, rule.Rule{regex, i.Group.Warning})
-		}
-	}
-
-	return rules
-}
-
 type Item struct {
 	Group struct {
 		Warning string
@@ -37,6 +24,21 @@ type Item struct {
 	}
 	Warning string
 	Regex   string
+	Match   []string
+	Nomatch []string
+}
+
+func (i Item) rules() (rules []rule.Rule) {
+
+	if i.Warning != "" && i.Regex != "" {
+		rules = append(rules, rule.Rule{i.Regex, i.Warning, i.Match, i.Nomatch})
+	} else if i.Group.Warning != "" {
+		for _, regex := range i.Group.Regex {
+			rules = append(rules, rule.Rule{Regex: regex, Warning: i.Group.Warning})
+		}
+	}
+
+	return rules
 }
 
 func rulesInFile(filename string) (rules []rule.Rule) {
