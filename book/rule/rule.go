@@ -32,11 +32,11 @@ func (r Rule) Test() []string {
 	result := make([]string, (len(match) + len(nomatch)))
 
 	for i, _ := range match {
-		result[i] = "*match* did not match: Regex:" + r.Regex + " Phrase:" + match[i]
+		result[i] = fmt.Sprintf("%-20s \t %-20s \t %-10s", r.Regex, "*match* did not match", match[i])
 	}
 
 	for i, _ := range nomatch {
-		result[nomatch_0+i] = "*nomatch* did match: regex:" + r.Regex + " Phrase:" + nomatch[i]
+		result[nomatch_0+i] = fmt.Sprintf("%-20s \t %-20s \t %-10s", r.Regex, "*nomatch* did match", nomatch[i])
 	}
 
 	return result

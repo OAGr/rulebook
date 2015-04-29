@@ -77,6 +77,7 @@ func (b Rulebook) isDownloaded() bool {
 
 func (b Rulebook) Test() string {
 	var result []string
+	result = append(result, fmt.Sprintf("%-20s \t %-20s \t %-10s", "REGEX", "FAILURE", "TEST"))
 	for _, rule := range b.Rules {
 		result = append(result, rule.Test()...)
 	}
