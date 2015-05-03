@@ -9,10 +9,11 @@ type Evaluator struct {
 	lines    []*EvaluateLine
 }
 
-func (e *Evaluator) Evaluate() {
+func (e *Evaluator) Evaluate() (err error) {
 	for _, l := range e.lines {
-		l.Evaluate()
+		err = l.Evaluate()
 	}
+	return
 }
 
 func (e Evaluator) brokenRules() (brokenRules []rule.Rule) {

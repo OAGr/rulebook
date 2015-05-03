@@ -8,11 +8,19 @@ import (
 	"path/filepath"
 )
 
-func RulesInDir(dir string) (rules []rule.Rule) {
-	fileList := findYml(dir)
+func RulesInDir(dir string) (rules []rule.Rule, err error) {
+	fileList, err := findYml(dir)
+	if err != nil {
+		return
+	}
 
 	for _, filename := range fileList {
-		rules = append(rules, rulesInFile(filename)...)
+		file_rules, e := rulesInFile(filename)
+		if e != nil {
+			err = e
+			break
+		}
+		rules = append(rules, file_rules...)
 	}
 	return
 }
@@ -41,10 +49,16 @@ func (i Item) rules() (rules []rule.Rule) {
 	return rules
 }
 
-func rulesInFile(filename string) (rules []rule.Rule) {
+func rulesInFile(filename string) (rules []rule.Rule, err error) {
 	m := struct{ Rules []Item }{}
-	yamlFile, _ := ioutil.ReadFile(filename)
-	yaml.Unmarshal([]byte(string(yamlFile)), &m)
+	yamlFile, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return
+	}
+	err = yaml.Unmarshal([]byte(string(yamlFile)), &m)
+	if err != nil {
+		return
+	}
 
 	for _, item := range m.Rules {
 		rules = append(rules, item.rules()...)
@@ -53,14 +67,16 @@ func rulesInFile(filename string) (rules []rule.Rule) {
 	return
 }
 
-func findYml(dir string) []string {
-	fileList := []string{}
-	filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
-		if rule.DoesMatch(".yml", path) {
+func findYml(dir string) (fileList []string, err error) {
+	err = filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
+		matches, err := rule.DoesMatch(".yml", path)
+		if err != nil {
+			return err
+		}
+		if matches {
 			fileList = append(fileList, path)
 		}
-
 		return nil
 	})
-	return fileList
+	return
 }

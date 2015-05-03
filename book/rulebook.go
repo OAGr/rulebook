@@ -37,11 +37,16 @@ func (b Rulebook) Clone() {
 	}
 }
 
-func (b *Rulebook) MakeCurrent() {
+func (b *Rulebook) MakeCurrent() (err error) {
 	b.IsCurrent = true
 	if b.isDownloaded() {
-		b.Rules = b.FindRules()
+		rules, err := b.FindRules()
+		if err != nil {
+			return err
+		}
+		b.Rules = rules
 	}
+	return err
 }
 
 func (b Rulebook) Use() {
@@ -51,7 +56,7 @@ func (b Rulebook) Use() {
 	println(printThis)
 }
 
-func (b Rulebook) FindRules() []rule.Rule {
+func (b Rulebook) FindRules() ([]rule.Rule, error) {
 	return rule_parser.RulesInDir(b.path())
 }
 

@@ -10,10 +10,10 @@ type Library struct {
 	books []*Rulebook
 }
 
-func CurrentLibrary() (lib Library) {
+func CurrentLibrary() (lib Library, err error) {
 	lib = Library{}
 	lib.books = lib.findBooks()
-	lib.setCurrentBook()
+	err = lib.setCurrentBook()
 	return
 }
 
@@ -64,12 +64,16 @@ func (l Library) bookNames() (bookNames []string) {
 }
 
 // PreparationForLibrary
-func (l *Library) setCurrentBook() {
+func (l *Library) setCurrentBook() (err error) {
 	book := l.findCurrentBook()
-	book.MakeCurrent()
+	err = book.MakeCurrent()
+	if err != nil {
+		return
+	}
 	if !l.HasBook(book.Name) {
 		l.books = append(l.books, book)
 	}
+	return
 }
 
 func (l Library) bookId(name string) (id int) {

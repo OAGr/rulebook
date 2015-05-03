@@ -16,20 +16,27 @@ func (r Rule) String() string {
 	return fmt.Sprintf("%s ->  %s", r.Regex, r.Warning)
 }
 
-func (r Rule) IsBrokenBy(s string) bool {
+func (r Rule) IsBrokenBy(s string) (bool, error) {
 	return DoesMatch(r.Regex, s)
 }
 
-func DoesMatch(r string, s string) bool {
-	regexp, _ := regexp.Compile(r)
+func DoesMatch(r string, s string) (matches bool, err error) {
+	regexp, err := regexp.Compile(r)
+	if err != nil {
+		return
+	}
 	m := regexp.FindString(s)
-	return len(m) > 0
+	matches = len(m) > 0
+	return
 }
 
-func (r Rule) Test() []string {
-	match, nomatch := r.failedTests()
+func (r Rule) Test() (result []string) {
+	match, nomatch, err := r.failedTests()
+	if err != nil {
+		return
+	}
 	nomatch_0 := len(match)
-	result := make([]string, (len(match) + len(nomatch)))
+	result = make([]string, (len(match) + len(nomatch)))
 
 	for i, _ := range match {
 		result[i] = fmt.Sprintf("%-20s \t %-20s \t %-10s", r.Regex, "*match* did not match", match[i])
@@ -42,14 +49,24 @@ func (r Rule) Test() []string {
 	return result
 }
 
-func (r Rule) failedTests() (match []string, nomatch []string) {
+func (r Rule) failedTests() (match []string, nomatch []string, err error) {
 	for _, m := range r.Match {
-		if !r.IsBrokenBy(m) {
+		broken, er := r.IsBrokenBy(m)
+		if er != nil {
+			err = er
+			return
+		}
+		if !broken {
 			match = append(match, m)
 		}
 	}
 	for _, n := range r.Nomatch {
-		if r.IsBrokenBy(n) {
+		isbroken, er := r.IsBrokenBy(n)
+		err = er
+		if err != nil {
+			return
+		}
+		if isbroken {
 			nomatch = append(nomatch, n)
 		}
 	}

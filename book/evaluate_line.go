@@ -10,10 +10,16 @@ type EvaluateLine struct {
 	evaluator   *Evaluator
 }
 
-func (l *EvaluateLine) Evaluate() {
+func (l *EvaluateLine) Evaluate() (err error) {
 	for _, rule := range l.evaluator.Rulebook.Rules {
-		if rule.IsBrokenBy(l.line) {
+		isbroken, er := rule.IsBrokenBy(l.line)
+		if er != nil {
+			err = er
+			return
+		}
+		if isbroken {
 			l.brokenRules = append(l.brokenRules, rule)
 		}
 	}
+	return
 }

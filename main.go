@@ -21,7 +21,12 @@ func main() {
 			Aliases: []string{"v"},
 			Usage:   "Analyze content sent in via pipe command",
 			Action: func(c *cli.Context) {
-				fmt.Println(evaluateStdin())
+				str, err := evaluateStdin()
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					fmt.Println(str)
+				}
 			},
 		},
 		{
@@ -43,8 +48,12 @@ func main() {
 			Usage:   "Comment on a specific Github pull request",
 			Action: func(c *cli.Context) {
 				url := c.Args().First()
-				b := book.CurrentLibrary().CurrentBook()
-				err := book.ExecutePRStrategy(url, b)
+				library, err := book.CurrentLibrary()
+				if err != nil {
+					fmt.Println("PR Comment Failed:", err)
+				}
+				b := library.CurrentBook()
+				err = book.ExecutePRStrategy(url, b)
 				if err != nil {
 					fmt.Println("PR Comment Failed:", err)
 				}
@@ -60,7 +69,12 @@ func main() {
 					Aliases: []string{"l"},
 					Usage:   "List all downloaded books",
 					Action: func(c *cli.Context) {
-						fmt.Println(book.CurrentLibrary().String())
+						lib, err := book.CurrentLibrary()
+						if err != nil {
+							fmt.Println("PR Comment Failed:", err)
+						} else {
+							fmt.Println(lib.String())
+						}
 					},
 				},
 				{
@@ -68,10 +82,15 @@ func main() {
 					Aliases: []string{"r"},
 					Usage:   "List all rules in the current book",
 					Action: func(c *cli.Context) {
-						rules := book.CurrentLibrary().CurrentBook().Rules
-						println("Rulebook Rules")
-						for _, rule := range rules {
-							println(rule.String())
+						lib, err := book.CurrentLibrary()
+						if err != nil {
+							fmt.Println("Rule List Fail:", err)
+						} else {
+							rules := lib.CurrentBook().Rules
+							println("Rulebook Rules")
+							for _, rule := range rules {
+								println(rule.String())
+							}
 						}
 					},
 				},
@@ -80,10 +99,15 @@ func main() {
 					Usage: "Use a specific book",
 					Action: func(c *cli.Context) {
 						bookName := c.Args().First()
-						if book.CurrentLibrary().HasBook(bookName) {
-							book.Rulebook{Name: bookName}.Use()
+						lib, err := book.CurrentLibrary()
+						if err != nil {
+							fmt.Println(err)
 						} else {
-							println("No book %s", bookName)
+							if lib.HasBook(bookName) {
+								book.Rulebook{Name: bookName}.Use()
+							} else {
+								println("No book %s", bookName)
+							}
 						}
 					},
 				},
@@ -91,14 +115,24 @@ func main() {
 					Name:  "clone",
 					Usage: "Run `git clone` to get the currently selected book from Github",
 					Action: func(c *cli.Context) {
-						book.CurrentLibrary().CurrentBook().Clone()
+						lib, err := book.CurrentLibrary()
+						if err != nil {
+							fmt.Println(err)
+						} else {
+							lib.CurrentBook().Clone()
+						}
 					},
 				},
 				{
 					Name:  "update",
 					Usage: "Run `git pull` to update the currently selected book from Github",
 					Action: func(c *cli.Context) {
-						book.CurrentLibrary().CurrentBook().Update()
+						lib, err := book.CurrentLibrary()
+						if err != nil {
+							fmt.Println(err)
+						} else {
+							lib.CurrentBook().Update()
+						}
 					},
 				},
 				{
@@ -106,7 +140,12 @@ func main() {
 					Aliases: []string{"t"},
 					Usage:   "Test Rulebook",
 					Action: func(c *cli.Context) {
-						fmt.Println(book.CurrentLibrary().CurrentBook().Test())
+						lib, err := book.CurrentLibrary()
+						if err != nil {
+							fmt.Println(err)
+						} else {
+							fmt.Println(lib.CurrentBook().Test())
+						}
 					},
 				},
 			},
@@ -115,12 +154,21 @@ func main() {
 	app.Run(os.Args)
 }
 
-func evaluateStdin() string {
-	bytes, _ := ioutil.ReadAll(os.Stdin)
+func evaluateStdin() (string, error) {
+	bytes, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		return "", err
+	}
 	return evaluateText(string(bytes))
 }
 
-func evaluateText(text string) string {
-	b := book.CurrentLibrary().CurrentBook()
-	return book.ExecuteTextStrategy(text, b, "normal")
+func evaluateText(text string) (strategy string, err error) {
+	lib, err := book.CurrentLibrary()
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		b := lib.CurrentBook()
+		strategy, err = book.ExecuteTextStrategy(text, b, "normal")
+	}
+	return
 }

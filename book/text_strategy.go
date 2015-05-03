@@ -12,13 +12,14 @@ type TextStrategy struct {
 	evaluator      *Evaluator
 }
 
-func ExecuteTextStrategy(text string, book *Rulebook, messageType string) string {
+func ExecuteTextStrategy(text string, book *Rulebook, messageType string) (result string, err error) {
 	evaluator := &Evaluator{Rulebook: book}
 	strategy := TextStrategy{text: text, messageType: messageType, evaluator: evaluator}
 	strategy.Load()
-	strategy.evaluator.Evaluate()
+	err = strategy.evaluator.Evaluate()
 	strategy.Merge()
-	return strategy.Render()
+	result = strategy.Render()
+	return
 }
 
 func (t *TextStrategy) Load() {
