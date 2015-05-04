@@ -80,11 +80,15 @@ func (b Rulebook) isDownloaded() bool {
 	return (err == nil)
 }
 
-func (b Rulebook) Test() string {
+func (b Rulebook) Test() (string, error) {
 	var result []string
 	result = append(result, fmt.Sprintf("%-20s \t %-20s \t %-10s", "REGEX", "FAILURE", "TEST"))
 	for _, rule := range b.Rules {
-		result = append(result, rule.Test()...)
+		test_result, err := rule.Test()
+		if err != nil {
+			return "", err
+		}
+		result = append(result, test_result...)
 	}
-	return strings.Join(result, "\n")
+	return strings.Join(result, "\n"), nil
 }

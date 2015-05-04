@@ -48,11 +48,10 @@ func main() {
 			Usage:   "Comment on a specific Github pull request",
 			Action: func(c *cli.Context) {
 				url := c.Args().First()
-				library, err := book.CurrentLibrary()
+				b, err := book.GetCurrentBook()
 				if err != nil {
 					fmt.Println("PR Comment Failed:", err)
 				}
-				b := library.CurrentBook()
 				err = book.ExecutePRStrategy(url, b)
 				if err != nil {
 					fmt.Println("PR Comment Failed:", err)
@@ -69,7 +68,7 @@ func main() {
 					Aliases: []string{"l"},
 					Usage:   "List all downloaded books",
 					Action: func(c *cli.Context) {
-						lib, err := book.CurrentLibrary()
+						lib, err := book.GetCurrentLibrary()
 						if err != nil {
 							fmt.Println("PR Comment Failed:", err)
 						} else {
@@ -82,15 +81,16 @@ func main() {
 					Aliases: []string{"r"},
 					Usage:   "List all rules in the current book",
 					Action: func(c *cli.Context) {
-						lib, err := book.CurrentLibrary()
-						if err != nil {
-							fmt.Println("Rule List Fail:", err)
-						} else {
-							rules := lib.CurrentBook().Rules
+						book, err := book.GetCurrentBook()
+						if err == nil {
+							rules := book.Rules
 							println("Rulebook Rules")
 							for _, rule := range rules {
 								println(rule.String())
 							}
+						}
+						if err != nil {
+							fmt.Println(err)
 						}
 					},
 				},
@@ -99,15 +99,16 @@ func main() {
 					Usage: "Use a specific book",
 					Action: func(c *cli.Context) {
 						bookName := c.Args().First()
-						lib, err := book.CurrentLibrary()
-						if err != nil {
-							fmt.Println(err)
-						} else {
+						lib, err := book.GetCurrentLibrary()
+						if err == nil {
 							if lib.HasBook(bookName) {
 								book.Rulebook{Name: bookName}.Use()
 							} else {
 								println("No book %s", bookName)
 							}
+						}
+						if err != nil {
+							fmt.Println(err)
 						}
 					},
 				},
@@ -115,11 +116,12 @@ func main() {
 					Name:  "clone",
 					Usage: "Run `git clone` to get the currently selected book from Github",
 					Action: func(c *cli.Context) {
-						lib, err := book.CurrentLibrary()
+						book, err := book.GetCurrentBook()
+						if err == nil {
+							book.Clone()
+						}
 						if err != nil {
 							fmt.Println(err)
-						} else {
-							lib.CurrentBook().Clone()
 						}
 					},
 				},
@@ -127,11 +129,12 @@ func main() {
 					Name:  "update",
 					Usage: "Run `git pull` to update the currently selected book from Github",
 					Action: func(c *cli.Context) {
-						lib, err := book.CurrentLibrary()
+						book, err := book.GetCurrentBook()
+						if err == nil {
+							book.Update()
+						}
 						if err != nil {
 							fmt.Println(err)
-						} else {
-							lib.CurrentBook().Update()
 						}
 					},
 				},
@@ -140,11 +143,15 @@ func main() {
 					Aliases: []string{"t"},
 					Usage:   "Test Rulebook",
 					Action: func(c *cli.Context) {
-						lib, err := book.CurrentLibrary()
+						book, err := book.GetCurrentBook()
+						if err == nil {
+							test_result, err := book.Test()
+							if err == nil {
+								fmt.Println(test_result)
+							}
+						}
 						if err != nil {
 							fmt.Println(err)
-						} else {
-							fmt.Println(lib.CurrentBook().Test())
 						}
 					},
 				},
@@ -154,19 +161,17 @@ func main() {
 	app.Run(os.Args)
 }
 
-func evaluateStdin() (string, error) {
+func evaluateStdin() (evaluation string, err error) {
 	bytes, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		return "", err
+	if err == nil {
+		return evaluateText(string(bytes))
 	}
-	return evaluateText(string(bytes))
+	return
 }
 
 func evaluateText(text string) (strategy string, err error) {
-	lib, err := book.CurrentLibrary()
-	if err != nil {
-		fmt.Println(err)
-	} else {
+	lib, err := book.GetCurrentLibrary()
+	if err == nil {
 		b := lib.CurrentBook()
 		strategy, err = book.ExecuteTextStrategy(text, b, "normal")
 	}

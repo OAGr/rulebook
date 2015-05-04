@@ -30,7 +30,7 @@ func DoesMatch(r string, s string) (matches bool, err error) {
 	return
 }
 
-func (r Rule) Test() (result []string) {
+func (r Rule) Test() (result []string, err error) {
 	match, nomatch, err := r.failedTests()
 	if err != nil {
 		return
@@ -46,7 +46,7 @@ func (r Rule) Test() (result []string) {
 		result[nomatch_0+i] = fmt.Sprintf("%-20s \t %-20s \t %-10s", r.Regex, "*nomatch* did match", nomatch[i])
 	}
 
-	return result
+	return result, nil
 }
 
 func (r Rule) failedTests() (match []string, nomatch []string, err error) {

@@ -10,11 +10,19 @@ type Library struct {
 	books []*Rulebook
 }
 
-func CurrentLibrary() (lib Library, err error) {
+func GetCurrentLibrary() (lib Library, err error) {
 	lib = Library{}
 	lib.books = lib.findBooks()
 	err = lib.setCurrentBook()
-	return
+	return lib, err
+}
+
+func GetCurrentBook() (book *Rulebook, err error) {
+	lib, err := GetCurrentLibrary()
+	if err != nil {
+		return
+	}
+	return lib.CurrentBook(), nil
 }
 
 func (l Library) String() string {

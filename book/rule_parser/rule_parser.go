@@ -39,7 +39,8 @@ type Item struct {
 func (i Item) rules() (rules []rule.Rule) {
 
 	if i.Warning != "" && i.Regex != "" {
-		rules = append(rules, rule.Rule{i.Regex, i.Warning, i.Match, i.Nomatch})
+		rule := rule.Rule{i.Regex, i.Warning, i.Match, i.Nomatch}
+		rules = append(rules, rule)
 	} else if i.Group.Warning != "" {
 		for _, regex := range i.Group.Regex {
 			rules = append(rules, rule.Rule{Regex: regex, Warning: i.Group.Warning})
